@@ -25,6 +25,5 @@ __kernel void bad(__global uint * debug) {
   // observe trash in debug[1]
   if (get_local_id(0) == 33) { // works for values under 64 // workgroup_barrier only propogates to subgroup
     debug[1] = WG_local_var;
-    debug[2] = 6; // sanity value
   }
 }
