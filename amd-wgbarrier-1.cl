@@ -10,7 +10,7 @@ __kernel void bad(__global uint * debug) {
   }
 
   // issue occurs only if local var is set by thread in first subgroup
-  if (get_local_id(0) < 32) {
+  if (get_local_id(0) < 0) {
     WG_local_var = 0;
     debug[0] = WG_local_var;
   }
@@ -23,7 +23,7 @@ __kernel void bad(__global uint * debug) {
   work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
   // observe trash in debug[1]
-  if (get_local_id(0) == 33) { // works for values under 64 // workgroup_barrier only propogates to subgroup
+  if (get_local_id(0) == 65) { // works for values under 64 // workgroup_barrier only propogates to subgroup
     debug[1] = WG_local_var;
   }
 }
