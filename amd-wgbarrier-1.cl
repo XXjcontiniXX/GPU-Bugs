@@ -10,7 +10,7 @@ __kernel void bad(__global uint * debug) {
   }
 
   // issue occurs only if local var is set by thread in first subgroup
-  if (get_local_id(0) < 0) {
+  if (get_local_id(0) < 64) {
     WG_local_var = 0;
     debug[0] = WG_local_var;
   }
