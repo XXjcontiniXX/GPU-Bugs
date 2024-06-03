@@ -15,8 +15,8 @@ void computeReferencePrefixSum(uint32_t* ref, int size) {
 }
 
 int main(int argc, char* argv[]) {
-  int workgroupSize = 64;
-  int numWorkgroups = 32;
+  int workgroupSize = 128;
+  int numWorkgroups = 1;
   int deviceID = 0;
   bool enableValidationLayers = false;
   bool checkResults = false;
