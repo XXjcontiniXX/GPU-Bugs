@@ -87,18 +87,9 @@ int main(int argc, char* argv[]) {
 	program.setWorkgroupMemoryLength(workgroupSize*sizeof(uint32_t), 0);
 
 	// Run the kernel.
-	program.initialize("prefix_scan");
+	program.initialize("nvidia_issue");
 
 	float time = program.runWithDispatchTiming();
-
-
-	std::cout << "first subgroup observes exclusive_prefix " << debug.load<uint>(0) << "\n";
-	std::cout << "second subgroup observes exclusive_prefix " << debug.load<uint>(1) << "\n";
-
-	// for (int i = 1; i < 65; i++) {
-	// 	std::cout << "debug: " << debug.load<uint>(i) << "\n";
-	// }
-	
 
 	// Check the output.
 	if (checkResults) {
@@ -111,9 +102,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	// time is returned in ns, so don't need to divide by bytes to get GBPS
-        std::cout << "GPU Time: " << time / 1000000 << " ms\n";
+    std::cout << "GPU Time: " << time / 1000000 << " ms\n";
 	std::cout << "Throughput: " << (((long) size) * 4 * 2)/(time) << " GBPS\n";
-
+	std::cout << std::endl;
+	std::cout << "first subgroup observes exclusive_prefix " << debug.load<uint>(0) << "\n";
+	std::cout << "second subgroup observes exclusive_prefix " << debug.load<uint>(1) << "\n";
 	// Cleanup.
 	program.teardown();
 	in.teardown();

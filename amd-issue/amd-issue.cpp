@@ -76,14 +76,15 @@ int main(int argc, char* argv[]) {
 
 	float time = program.runWithDispatchTiming();
 
-	std::cout << "intial exp (1): " << debug.load<uint>(0) << "\n";
-	std::cout << "exp: " << debug.load<uint>(1) << "\n";
-	std::cout << "sanity check(6): " << debug.load<uint>(2) << "\n";
-	//std::cout << "sanity check(7): " << debug.load<uint>(3) << "\n";
-	
+
+
+
 	// time is returned in ns, so don't need to divide by bytes to get GBPS
-        std::cout << "GPU Time: " << time / 1000000 << " ms\n";
+    std::cout << "GPU Time: " << time / 1000000 << " ms\n";
 	std::cout << "Throughput: " << (((long) size) * 4 * 2)/(time) << " GBPS\n";
+	std::cout << std::endl;
+	std::cout << "first wg observes local_var = " << debug.load<uint>(0) << "\n";
+	std::cout << "second wg observes local_var = " << debug.load<uint>(1) << "\n";
 
 	// Cleanup.
 	program.teardown();
