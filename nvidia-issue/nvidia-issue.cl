@@ -29,6 +29,9 @@ __kernel void nvidia_issue(
       if (get_sub_group_local_id() == get_sub_group_size() - 1) {
             exclusive_prefix = scanned_prefix;}}
 
+
+    // Observe bug //
+    /////////////////
     // Propogate local memory set on line 30, by a member of subgroup 0, to the rest of the workgroup.   
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
     // Subgroup 0 observes exclusive_prefix as changed by line 30, debug[0] = 465.
