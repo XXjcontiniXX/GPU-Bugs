@@ -4,19 +4,19 @@ __kernel void amd_issue(__global uint * debug) {
 
   __local uint local_var;
 
-  // must be ONLY first sub group - without if, bug is not induced 
+  // first sub group 
   if (get_sub_group_id() == 0) { 
-    sub_group_barrier(CLK_LOCAL_MEM_FENCE); // (workgroup barrier also stimulates bug)
-  }
+    sub_group_barrier(CLK_LOCAL_MEM_FENCE); // using a workg_group_barrier() here induces same bug which is undefined behaviour 
+  }                                         // but could say something about the nature of the issue
 
-  // issue occurs only if local var is set by thread in first subgroup
-  if (get_local_id(0) < 64) {
+  // local var is set by thread in first subgroup
+  if (get_local_id(0) == 0) {
     local_var = 0;
     debug[0] = local_var;
   }
 
   // any false predicate, but nothing to simple or whole things gets optmized away
-  if (get_sub_group_id() > 20) {
+  if (get_sub_group_id() == -1) {
     local_var = 5;
   }
 
