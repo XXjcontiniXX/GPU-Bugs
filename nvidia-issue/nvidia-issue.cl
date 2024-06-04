@@ -1,3 +1,5 @@
+// 1 workgroup // 128 threads
+
 __kernel void nvidia_issue(
   __global atomic_uint *partition,
   __global uint * debug) {
