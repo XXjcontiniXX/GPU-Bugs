@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
         abort ();
       }
   auto size = numWorkgroups * workgroupSize * BATCH_SIZE;
+  auto sizeBytes = numWorkgroups * workgroupSize * BATCH_SIZE * sizeof(uint);
 	// Initialize instance.
 	auto instance = easyvk::Instance(enableValidationLayers);
 	// Get list of available physical devices.
@@ -59,26 +60,17 @@ int main(int argc, char* argv[]) {
 	std::cout << "Using device: " << device.properties.deviceName << "\n";
   std::cout << "Device subgroup size: " << device.subgroupSize() << "\n";
 	// Define the buffers to use in the kernel. 
-	auto in = easyvk::Buffer(device, size, sizeof(uint32_t));
-	auto out = easyvk::Buffer(device, size, sizeof(uint32_t));
-	auto prefixStates = easyvk::Buffer(device, numWorkgroups, 3*sizeof(uint32_t));
-	auto partitionCtr = easyvk::Buffer(device, 1, sizeof(uint32_t));
-	auto debug = easyvk::Buffer(device, 64, sizeof(uint32_t));
 
-	// Write initial values to the buffers.
-	for (int i = 0; i < size; i++) {
-		// The buffer provides an untyped view of the memory, so you must specify
-		// the type when using the load/store method. 
-		in.store<uint32_t>(i, i);
-	}
-	
-	out.clear();
-	prefixStates.clear();
-	partitionCtr.clear();
-	std::vector<easyvk::Buffer> bufs = { partitionCtr, debug};
+
+	std::vector<uint> hostDebug(2, 0);
+
+	auto debug = easyvk::Buffer(device, sizeof(uint) * 2, true);
+	auto partitionCtr = easyvk::Buffer(device, sizeof(uint), true);
+
+	std::vector<easyvk::Buffer> bufs = {partitionCtr, debug};
 
 	std::vector<uint32_t> spvCode = 
-	#include "../build/nvidia-issue.cinit"
+	#include "../bin/nvidia-issue.cinit"
 	;
 	auto program = easyvk::Program(device, spvCode, bufs);
 
@@ -91,28 +83,18 @@ int main(int argc, char* argv[]) {
 
 	float time = program.runWithDispatchTiming();
 
-	// Check the output.
-	if (checkResults) {
-		uint32_t ref = 0;
-		for (int i = 0; i < size; i++) {
-			ref += i;
-			std::cout << "out[" << i << "]: " << out.load<uint>(i) << ", ref:" << ref << "\n";
-			assert(out.load<uint>(i) == ref);
-		}
-	}
+	debug.load(hostDebug.data(), sizeof(uint) * 2);
 
 	// time is returned in ns, so don't need to divide by bytes to get GBPS
     std::cout << "GPU Time: " << time / 1000000 << " ms\n";
 	std::cout << "Throughput: " << (((long) size) * 4 * 2)/(time) << " GBPS\n";
 	std::cout << std::endl;
-	std::cout << "first subgroup observes exclusive_prefix " << debug.load<uint>(0) << "\n";
-	std::cout << "second subgroup observes exclusive_prefix " << debug.load<uint>(1) << "\n";
+	std::cout << "first subgroup observes local_scan " << hostDebug[0] << "\n";
+	std::cout << "second subgroup observes local_scan " << hostDebug[1] << "\n";
 	// Cleanup.
 	program.teardown();
-	in.teardown();
-	out.teardown();
-	prefixStates.teardown();
 	partitionCtr.teardown();
+	debug.teardown();
 	device.teardown();
 	instance.teardown();
 	return 0;

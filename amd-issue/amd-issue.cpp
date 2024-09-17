@@ -52,18 +52,15 @@ int main(int argc, char* argv[]) {
 	std::cout << "Using device: " << device.properties.deviceName << "\n";
   std::cout << "Device subgroup size: " << device.subgroupSize() << "\n";
 	// Define the buffers to use in the kernel. 
-	auto out = easyvk::Buffer(device, size, sizeof(uint32_t));
-	auto partition = easyvk::Buffer(device, 1, sizeof(uint32_t));
-	auto debug = easyvk::Buffer(device, 4, sizeof(uint32_t));
 
-	debug.store<uint32_t>(1, 0);
+	std::vector<uint> hostDebug(4, 0);
 
-	out.clear();
-	partition.clear();
+	auto debug = easyvk::Buffer(device, sizeof(uint) * 4, true);
+
 	std::vector<easyvk::Buffer> bufs = {debug};
 
 	std::vector<uint32_t> spvCode = 
-	#include "../build/amd-issue.cinit"
+	#include "../bin/amd-issue.cinit"
 	;
 	auto program = easyvk::Program(device, spvCode, bufs);
 
@@ -76,20 +73,18 @@ int main(int argc, char* argv[]) {
 
 	float time = program.runWithDispatchTiming();
 
-
+	debug.load(hostDebug.data(), sizeof(uint) * 4);
 
 
 	// time is returned in ns, so don't need to divide by bytes to get GBPS
     std::cout << "GPU Time: " << time / 1000000 << " ms\n";
 	std::cout << "Throughput: " << (((long) size) * 4 * 2)/(time) << " GBPS\n";
 	std::cout << std::endl;
-	std::cout << "first wg observes local_var = " << debug.load<uint>(0) << "\n";
-	std::cout << "second wg observes local_var = " << debug.load<uint>(1) << "\n";
+	std::cout << "first wg observes local_var = " << hostDebug[0] << "\n";
+	std::cout << "second wg observes local_var = " << hostDebug[1] << "\n";
 
 	// Cleanup.
 	program.teardown();
-	out.teardown();
-	partition.teardown();
 	debug.teardown();
 	device.teardown();
 	instance.teardown();
