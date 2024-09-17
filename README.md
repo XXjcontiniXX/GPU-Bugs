@@ -13,4 +13,4 @@
   A combination of dynamically loading the partition buffer and calling the subgroup barrier with subgroup 0 causes the work_group_barrier to fail to propogate exclusive prefix from the last thread of subgroup 0 to threads in higher subgroups. This issue occurs on the NVIDA GTX 4070 on Shrike.
   
 #### Notes
-  When compiling an error: `MESA-INTEL: warning: cannot initialize blitter engine` occurs but this can be ignored.
+  The directory `spv-dis/` contains readabled versions of the spirv for both bugs.
