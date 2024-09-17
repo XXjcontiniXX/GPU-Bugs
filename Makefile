@@ -6,7 +6,7 @@ BUILDDIR1 = nvidia-issue
 
 BUILDDIR2 = amd-issue
 
-.PHONY: clean easyvk
+.PHONY: clean easyvk nvidia-issue amd-issue
 
 all: build easyvk nvidia-issue amd-issue 
 
