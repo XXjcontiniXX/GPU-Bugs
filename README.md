@@ -1,10 +1,9 @@
 # GPU-Bugs
   
 ## Build
-  1. Clone this repository onto your system.
-  2. Navigate to the easyvk repository which is a submodule found in this repository. Clone this repository into your own repo.
-  3. Make all.
-  4. Run `./build/nvidia-issue.run` or `./build/amd-issue.run`
+  1. Clone this repository onto your system.  
+  2. Make all.  
+  3. Run `./build/nvidia-issue.run` or `./build/amd-issue.run`  
   
 ### amd-issue
   Empirical testing suggests that work_group_barrier() fails to propagate local variable initialization to threads outside of the subgroup where it was initialized, when the local variable was initialized in the first subgroup- and the rest of the setup shown is present. This issue occurs on both the open source and proprietary drivers of both the discrete and integrated AMD gpus on waterthrush.
