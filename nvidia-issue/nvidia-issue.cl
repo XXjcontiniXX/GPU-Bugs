@@ -14,7 +14,7 @@ __kernel void nvidia_issue(
 
 
   // Local memory variable declared then intialized to 1 by thread one of first subgroup.
-  if (get_local_id(0) == 0) {
+  if (get_sub_group_id() == 0 && get_sub_group_local_id() == 0) {
     local_scan = 5;
   }
 
@@ -32,13 +32,13 @@ __kernel void nvidia_issue(
 
 
     // subgroup 0
-    if (get_local_id(0) == 0)
+    if (get_sub_group_id() == 0 && get_sub_group_local_id() == 0)
     {
       debug[0] = local_scan;
     }
   
     // subgroup 1
-    if (get_local_id(0) == 32) 
+    if (get_sub_group_id() == 1 && get_sub_group_local_id() == 0) 
     {
       debug[1] = local_scan;
     }
